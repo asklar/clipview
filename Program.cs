@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -145,62 +146,107 @@ namespace clipview
                     CSV
 
         */
-        static Dictionary<string, Action<object, string>> knownFormats = new Dictionary<string, Action<object, string>>{
+        Dictionary<string, Action<object, string>> knownFormats = new Dictionary<string, Action<object, string>>{
             // {"Text", (object data, string filename) => {}},
             {"DeviceIndependentBitmap", (object data, string filename) => {
                 MemoryStream imgStream = DibUtil.ImageFromClipboardDib(data as MemoryStream);
                 if (imgStream == null) { throw new Exception("Couldn't create image from clipboard content"); }
                 SaveToFile(filename + ".bmp", imgStream);
             }},
+            {"PNG", (object data, string filename) => { SaveToFile(filename + ".png", data as MemoryStream); }},
         };
 
+
+        private void GetFormat(IDataObject content, string format)
+        {
+                object data = content.GetData(format);
+                const string filename = "clipboard";
+                if (knownFormats.ContainsKey(format))
+                {
+                    knownFormats[format](data, filename);
+                }
+                else if (data is Bitmap)
+                {
+                    Bitmap b = (Bitmap)data;
+                    b.Save(filename + ".bmp");
+                    Console.WriteLine($"Saved to {filename}.bmp");
+                }
+                else if (data is MemoryStream)
+                {
+                    MemoryStream ms = data as MemoryStream;
+                    // Is it a scalar?
+                    if (ms.Length <= 8)
+                    {
+                        string value = new StreamReader(ms).ReadToEnd();
+                        if (int.TryParse(value, out int intvalue))
+                        {
+                            Console.WriteLine($"Integer value: {intvalue}");
+                            return;
+                        }
+                        else if (bool.TryParse(value, out bool boolvalue))
+                        {
+                            Console.WriteLine($"Bool value: {boolvalue}");
+                            return;
+                        }
+                        else if (ms.Length == 4)
+                        {
+                            int x = BitConverter.ToInt32(Encoding.UTF8.GetBytes(value));
+                            Console.WriteLine($"Int value: {x}");
+                            return;
+                        }
+                    }
+                    SaveToFile(filename + ".out", ms);
+
+                }
+                else if (data is string || data is string[])
+                {
+                    if (data is string[])
+                    {
+                        data = string.Join(Environment.NewLine, data as string[]) as string;
+                    }
+                    if (PrintOut)
+                    {
+                        Console.WriteLine((string)data);
+                    }
+                    else
+                    {
+                        MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes((string)data));
+                        SaveToFile(filename + ".txt", ms);
+                    }
+                }
+                else if (data is File)
+                {
+                    Console.WriteLine("Found a file");
+                }
+                else if (data != null)
+                {
+                    Console.Error.WriteLine($"Found format {format} but handling not yet implemented. Type is {data.GetType().Name}");
+                    return;
+                }
+                else
+                {
+                    Console.Error.WriteLine($"Found format {format} but GetData returned null");
+                    return;
+                }
+        }
+
+        private bool PrintOut {get;set;}
         [STAThread]
         static void Main(string[] args)
         {
             string format = args.Length > 0 ? args[0] : null;
             IDataObject content = Clipboard.GetDataObject();
             string[] formats = content.GetFormats();
-            Console.Out.Flush();
+            Program p = new Program();
+            if (args.Length >= 2 && args[1].ToUpper() == "-P") {
+                p.PrintOut = true;
+            }
+            
             if (format != null)
             {
                 if (formats.Contains(format))
                 {
-                    object data = content.GetData(format);
-                    const string filename = "clipboard";
-                    if (knownFormats.ContainsKey(format))
-                    {
-                        knownFormats[format](data, filename);
-                    }
-                    else if (data is MemoryStream)
-                    {
-                        SaveToFile(filename + ".out", data as MemoryStream);
-                    }
-                    else if (data is string || data is string[])
-                    {
-                        if (data is string[]) {
-                            data = string.Join(Environment.NewLine, data as string[]) as string;
-                        }
-                        if (args.Length >= 2 && args[1].ToUpper() == "-P")
-                        {
-                            Console.WriteLine((string)data);
-                        }
-                        else
-                        {
-                            MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes((string)data));
-                            SaveToFile(filename + ".txt", ms);
-                        }
-                    } else if (data is File) {
-                        Console.WriteLine("Found a file");
-                    }
-                    else if (data != null)
-                    {
-                        Console.Error.WriteLine($"Found format {format} but handling not yet implemented. Type is {data.GetType().Name}");
-                        return;
-                    }
-                    else {
-                        Console.Error.WriteLine($"Found format {format} but GetData returned null");
-                        return;
-                    }
+                    p.GetFormat(content, format);
                 }
                 else
                 {
