@@ -1,14 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <UseWindowsForms>true</UseWindowsForms>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- <UseWindowsForms>true</UseWindowsForms> -->
     <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
     <PublishReadyToRun>true</PublishReadyToRun>
     <PublishSingleFile>true</PublishSingleFile>
     <PublishTrimmed>true</PublishTrimmed>
-    <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings>
+    <!-- <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings> -->
   </PropertyGroup>
 
 </Project>
