@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "clipview": {
+      "commandName": "Project",
+      "commandLineArgs": "Bitmap",
+      "nativeDebugging": true
+    }
+  }
+}
