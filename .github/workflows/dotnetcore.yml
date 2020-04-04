@@ -24,11 +24,11 @@ jobs:
     - name: Test
       run: dotnet test --no-restore --verbosity normal
     - name: Package single executable
-      run: dotnet publish -c Release -o $(Build.ArtifactStagingDirectory)
+      run: dotnet publish -c Release -o publish\
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
         # Artifact name
         name: exe
         # Directory containing files to upload
-        path: $(Build.ArtifactStagingDirectory)
+        path: publish\*
