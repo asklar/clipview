@@ -25,6 +25,8 @@ jobs:
       run: dotnet test --no-restore --verbosity normal
     - name: Package single executable
       run: dotnet publish -c Release -o publish
+    - name: find *.exe
+      run: find . -name *.exe
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       if: success()
