@@ -25,8 +25,9 @@ jobs:
       run: dotnet test --no-restore --verbosity normal
     - name: Package single executable
       run: dotnet publish -c Release -o $(Build.ArtifactStagingDirectory)
-    - task: PublishPipelineArtifact@0
-      inputs:
+    - name: Publish
+      uses: PublishPipelineArtifact@0
+      with:
         artifactName: build
         targetPath: $(Build.ArtifactStagingDirectory)
 
