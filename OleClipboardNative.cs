@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 
@@ -7,6 +6,9 @@ namespace clipview
 {
     public class OleClipboardNative
     {
+        [DllImport("ole32.dll", PreserveSig = false)]
+        public static extern void OleInitialize(IntPtr intPtr);
+
         [DllImport("ole32.dll", PreserveSig = false)]
         // [return: MarshalAs(UnmanagedType.IUnknown)]
         public static extern IDataObject OleGetClipboard();

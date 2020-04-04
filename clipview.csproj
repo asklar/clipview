@@ -4,9 +4,8 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <!-- <UseWindowsForms>true</UseWindowsForms> -->
     <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
-    <PublishReadyToRun>true</PublishReadyToRun>
+    <!-- <PublishReadyToRun>true</PublishReadyToRun> -->
     <PublishSingleFile>true</PublishSingleFile>
     <PublishTrimmed>true</PublishTrimmed>
     <!-- <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings> -->
