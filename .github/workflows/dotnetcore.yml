@@ -34,5 +34,5 @@ jobs:
         # Artifact name
         name: exe
         # Directory containing files to upload
-        path: publish/*
+        path: publish
         
