@@ -10,9 +10,9 @@ namespace clipview
 {
     public class DataObject
     {
-        private Dictionary<string, StandardClipboardFormats> formats = new Dictionary<string, StandardClipboardFormats>();
+        private readonly Dictionary<string, StandardClipboardFormats> formats = new Dictionary<string, StandardClipboardFormats>();
 
-        private IDataObject inner;
+        private readonly IDataObject inner;
         internal DataObject()
         {
             formats.Clear();
@@ -40,17 +40,7 @@ namespace clipview
                 var fmt = fmtEtc[0].cfFormat;
                 string name = ClipboardNative.GetClipboardFormatName((uint)fmt);
                 RegisterFormat(name, (uint)fmt);
-                // Console.WriteLine(fmt);
             }
-
-            // for (uint i = 0, fmt = 0; i < ClipboardNative.CountClipboardFormats(); i++)
-            // {
-            //     fmt = ClipboardNative.EnumClipboardFormats(fmt);
-            //     if (fmt != 0)
-            //     {
-
-            //     }
-            // }
         }
 
         [DllImport("user32.dll", SetLastError = true)]
@@ -68,21 +58,6 @@ namespace clipview
             }
         }
 
-        public override string ToString()
-        {
-            string[] textFormats = new string[] { "UnicodeText", "Text", "Locale", "OemText" };
-            foreach (var f in textFormats)
-            {
-                if (formats.ContainsKey(f))
-                {
-                    using (var medium = OleGetData(f))
-                    {
-                        return medium.GetString();
-                    }
-                }
-            }
-            return base.ToString();
-        }
         public IEnumerable<string> GetClipboardFormats()
         {
             return formats.Keys;
@@ -149,13 +124,16 @@ namespace clipview
                     case "FileNameW":
                     case "HTML Format":
                     case "UniformResourceLocatorW":
+                    case "Csv":
                         return medium.GetString();
                     case "FileGroupDescriptorW":
                         return medium.GetFileGroupDescriptor();
                     case "FileContents":
                         return medium.GetStream();
+                    case "PNG":
                     default:
-                        return new MemoryStream(medium.GetByteArray());
+                        if (Program.UseString) { return medium.GetString(); }
+                        else { return new MemoryStream(medium.GetByteArray()); }
                 }
             }
         }
@@ -175,15 +153,17 @@ namespace clipview
                     return TYMED.TYMED_HGLOBAL;
                 case "FileContents":
                 case "HTML Format":
+                case "Csv":
                     return TYMED.TYMED_ISTREAM;
                 case "Bitmap":
                     return TYMED.TYMED_GDI;
                 case "DeviceIndependentBitmap":
                 case "DeviceIndependentBitmapW":
                 case "DeviceIndependentBitmapV5":
+                case "PNG":
                     return TYMED.TYMED_HGLOBAL;
             }
-            return TYMED.TYMED_ISTREAM;
+            return TYMED.TYMED_HGLOBAL;
         }
 
         public class NativeStgMedium : IDisposable
@@ -278,6 +258,7 @@ namespace clipview
                     throw new COMException();
                 }
             }
+
             public string GetString()
             {
                 if (medium.tymed == TYMED.TYMED_HGLOBAL)
@@ -295,7 +276,7 @@ namespace clipview
                         case "Locale":
                             return GetDWORD().ToString();
                     }
-                    return Encoding.Unicode.GetString(GetByteArray());
+                    return Program.UseAscii ? Encoding.ASCII.GetString(GetByteArray()) : Encoding.Unicode.GetString(GetByteArray());
                 }
                 else if (medium.tymed == TYMED.TYMED_FILE)
                 {
@@ -315,9 +296,6 @@ namespace clipview
                             }
                         }
                     }
-
-                    //var stat = Stat(stream);
-                    //return $"{stat.pwcsName}({stat.cbSize} bytes)";
                 }
                 throw new InvalidComObjectException();
             }
@@ -337,7 +315,6 @@ namespace clipview
             inner.GetData(ref fmtEtc, out STGMEDIUM medium);
             return new NativeStgMedium(medium, format);
         }
-
     }
 
     [Flags]
@@ -392,30 +369,15 @@ namespace clipview
         public IntPtr bmBits;
     }
 
-
     [StructLayout(LayoutKind.Sequential)]
     public struct BITMAPINFO
     {
         public BITMAPINFOHEADER bmiHeader;
-        //public BITMAPINFOHEADER bmiHeader;
-        //public int biSize;
-        //public int biWidth;
-        //public int biHeight;
-        //public short biPlanes;
-        //public short biBitCount;
-        //public int biCompression;
-        //public int biSizeImage;
-        //public int biXPelsPerMeter;
-        //public int biYPelsPerMeter;
-        //public int biClrUsed;
-        //public int biClrImportant;
-
         public byte bmiColors_rgbBlue;
         public byte bmiColors_rgbGreen;
         public byte bmiColors_rgbRed;
         public byte bmiColors_rgbReserved;
     }
-
 
     public enum DIB_Color_Mode : uint
     {
@@ -467,16 +429,8 @@ namespace clipview
             return retVal;
         }
 
-
-
         [DllImport("gdi32.dll")]
         internal static extern bool DeleteObject(IntPtr hObject);
-
-        [DllImport("gdi32.dll")]
-        public static extern IntPtr CreateCompatibleDC(IntPtr hdc);
-
-        [DllImport("gdi32.dll")]
-        public static extern bool DeleteDC(IntPtr hdc);
 
         [DllImport("user32.dll")]
         public static extern IntPtr GetDC(IntPtr hwnd);

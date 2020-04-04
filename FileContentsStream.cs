@@ -14,8 +14,8 @@ namespace clipview
             this.stream = stream;
             stream.Stat(out stat, 0);
         }
-        public string FileName { get => stat.pwcsName; }
-        public long Length { get => stat.cbSize; }
+        public string FileName => stat.pwcsName;
+        public long Length => stat.cbSize;
         enum STREAM_SEEK : int
         {
             STREAM_SEEK_SET,
