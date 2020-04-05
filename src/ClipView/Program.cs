@@ -84,6 +84,10 @@ Options:
             {
                 Console.WriteLine(result);
             }
+            else if (result is string[])
+            {
+                Console.WriteLine(string.Join('\n', result as string[]));
+            }
             else if (result is FileContentsStream[])
             {
                 foreach (var stream in (result as FileContentsStream[]))
@@ -91,6 +95,10 @@ Options:
                     stream.Save(stream.FileName);
                     Console.WriteLine($"Saved file to {stream.FileName} ({stream.Length} bytes)");
                 }
+            }
+            else if (result is FILEDESCRIPTOR[])
+            {
+                Console.WriteLine(string.Join(", ", (result as FILEDESCRIPTOR[])));
             }
             else if (result is MemoryStream && FormatIsBitmap(format))
             {
@@ -106,6 +114,10 @@ Options:
                 {
                     (result as MemoryStream).WriteTo(file);
                 }
+            }
+            else if (result is int)
+            {
+                Console.WriteLine(result);
             }
             else
             {

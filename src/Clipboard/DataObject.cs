@@ -134,10 +134,28 @@ namespace Clipboard
                         return medium.GetFileGroupDescriptor();
                     case "FileContents":
                         return medium.GetStream();
+                    case "Drop":
+                        return medium.GetDrop();
                     case "PNG":
                     default:
                         if (UseString) { return medium.GetString(); }
-                        else { return new MemoryStream(medium.GetByteArray()); }
+                        else {
+                            var bytes = medium.GetByteArray();
+                            var ms = new MemoryStream(bytes);
+                            switch (ms.Length)
+                            {
+                                case 8:
+                                    return BitConverter.ToInt64(bytes);
+                                case 4:
+                                    return BitConverter.ToInt32(bytes);
+                                case 2:
+                                    return BitConverter.ToInt16(bytes);
+                                case 1:
+                                    return  (int)BitConverter.ToChar(bytes);
+                                default:
+                                    return ms;
+                            }
+                        }
                 }
             }
         }
@@ -165,6 +183,7 @@ namespace Clipboard
                 case "DeviceIndependentBitmapW":
                 case "DeviceIndependentBitmapV5":
                 case "PNG":
+                case "Drop":
                     return TYMED.TYMED_HGLOBAL;
             }
             return TYMED.TYMED_HGLOBAL;
@@ -255,6 +274,13 @@ namespace Clipboard
                     try
                     {
                         FILEGROUPDESCRIPTOR fgd = Marshal.PtrToStructure<FILEGROUPDESCRIPTOR>(gLock);
+                        fgd.fgd = new FILEDESCRIPTOR[fgd.cItems];
+                        for (int i = 0; i < fgd.cItems; i++)
+                        {
+                            fgd.fgd[i] = Marshal.PtrToStructure<FILEDESCRIPTOR>(gLock +
+                                Marshal.SizeOf(fgd.cItems) +
+                                Marshal.SizeOf(fgd.fgd[0]) * i);
+                        }
                         return fgd.fgd;
                     }
                     finally { ClipboardNative.GlobalUnlock(gLock); }
@@ -305,6 +331,46 @@ namespace Clipboard
                 }
                 throw new InvalidComObjectException();
             }
+
+            public struct POINT
+            {
+                public int x;
+                public int y;
+            }
+
+            public struct DROPFILES
+            {
+                public uint pFiles;
+                public POINT pt;
+                [MarshalAs(UnmanagedType.Bool)]
+                public bool fNC;
+                [MarshalAs(UnmanagedType.Bool)]
+                public bool fWide;
+            }
+
+            internal IEnumerable<string> GetDrop()
+            {
+                IntPtr Length = ClipboardNative.GlobalSize(medium.unionmember);
+                IntPtr gLock = ClipboardNative.GlobalLock(medium.unionmember);
+                try
+                {
+                    DROPFILES df = Marshal.PtrToStructure<DROPFILES>(gLock);
+                    List<string> files = new List<string>();
+                    string name;
+                    int offset = (int)df.pFiles;
+                    do
+                    {
+                        name = Marshal.PtrToStringAuto(gLock + offset);
+                        files.Add(name);
+                        offset += (name.Length + 1) * sizeof(char);
+                    } while (name.Length != 0);
+                    return files.ToArray();
+                }
+                finally
+                {
+                    ClipboardNative.GlobalUnlock(gLock);
+                }
+            }
         }
 
         private static STATSTG Stat(IStream stream)
@@ -353,13 +419,18 @@ namespace Clipboard
         public UInt32 nFileSizeLow;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
         public string cFileName;
+
+        public override string ToString()
+        {
+            UInt64 size = nFileSizeHigh << 32 | nFileSizeLow;
+            return $"{cFileName} ({size} bytes)";
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct FILEGROUPDESCRIPTOR
     {
         public uint cItems;
-        [MarshalAs(UnmanagedType.ByValArray)]
         public FILEDESCRIPTOR[] fgd;
     }
 
