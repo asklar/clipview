@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
+    <!-- <PublishReadyToRun>true</PublishReadyToRun> -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishTrimmed>true</PublishTrimmed>
+    <!-- <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings> -->
+    <Today>$([System.DateTime]::Now.ToString("yyMMdd"))</Today>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="clipboard.bmp" />
+    <None Remove="clipboard.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Clipboard\Clipboard.csproj" />
+  </ItemGroup>
+
+</Project>

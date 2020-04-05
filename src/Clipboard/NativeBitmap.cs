@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace clipview
+namespace Clipboard
 {
     internal class NativeBitmap : IDisposable
     {

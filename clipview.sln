@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29926.136
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "clipview", "src\ClipView\clipview.csproj", "{4953A806-184D-4369-8C13-EA87C51F35DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clipboard", "src\Clipboard\Clipboard.csproj", "{503B6E1A-C8B8-46DA-A266-41F1A836D8B5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4953A806-184D-4369-8C13-EA87C51F35DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4953A806-184D-4369-8C13-EA87C51F35DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4953A806-184D-4369-8C13-EA87C51F35DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4953A806-184D-4369-8C13-EA87C51F35DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{503B6E1A-C8B8-46DA-A266-41F1A836D8B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{503B6E1A-C8B8-46DA-A266-41F1A836D8B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{503B6E1A-C8B8-46DA-A266-41F1A836D8B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{503B6E1A-C8B8-46DA-A266-41F1A836D8B5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B921CE2C-A612-49A9-97BB-12183183F90F}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>ClipView</id>
+    <!-- <version>$PackageVersion$</version> -->
+    <title>ClipView</title>
+    <authors>Alexander Sklar</authors>
+    <owners>Alexander Sklar</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/asklar/clipview/</projectUrl>
+    <description>ClipView: a command-line Windows clipboard viewer</description>
+    <!-- <releaseNotes>Summary of changes made in this release of the package.</releaseNotes> -->
+    <copyright>Copyright 2020</copyright>
+    <tags>CLI Windows Clipboard dotnet netcore</tags>
+  </metadata>
+  <files>
+    <file src="publish\*.exe" target="lib"/>
+  </files>
+</package>
