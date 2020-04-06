@@ -178,6 +178,8 @@ Options:
                 case "DeviceIndependentBitmap":
                 case "DeviceIndependentBitmapW":
                 case "DeviceIndependentBitmapV5":
+                case "MetafilePicture":
+                case "EnhancedMetafile":
                     return true;
                 default:
                     return false;

@@ -22,20 +22,21 @@ namespace Clipboard
         {
             public BITMAPINFO bitmapInfo;
             public byte[] bitmapBytes;
-        };
-        private BitmapData bitmapData = new BitmapData();
-
-        public byte[] Bitmap
-        {
-            get
+            public byte[] Bitmap
             {
-                byte[] ret = new byte[Marshal.SizeOf(bitmapData.bitmapInfo) + bitmapData.bitmapBytes.Length];
-                byte[] info = BinaryStructConverter.ToByteArray(bitmapData.bitmapInfo);
-                info.CopyTo(ret, 0);
-                bitmapData.bitmapBytes.CopyTo(ret, info.Length);
-                return ret;
+                get
+                {
+                    byte[] ret = new byte[Marshal.SizeOf(bitmapInfo) + bitmapBytes.Length];
+                    byte[] info = BinaryStructConverter.ToByteArray(bitmapInfo);
+                    info.CopyTo(ret, 0);
+                    bitmapBytes.CopyTo(ret, info.Length);
+                    return ret;
+                }
             }
-        }
+        };
+
+        private BitmapData bitmapData = new BitmapData();
+        public byte[] Bitmap => bitmapData.Bitmap;
         public void Dispose()
         {
             Gdi32.DeleteObject(hBitmap);
