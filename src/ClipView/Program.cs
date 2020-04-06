@@ -69,7 +69,7 @@ Options:
                 foreach (var f in formats)
                 {
                     Console.Write($"{f}: ");
-                    Process(f, data);
+                    Process(f, data, true);
                 }
                 return 0;
             }
@@ -87,7 +87,7 @@ Options:
             }
         }
 
-        private static int Process(string format, DataObject data)
+        private static int Process(string format, DataObject data, bool isStar = false)
         {
             var result = data.GetData(format);
             if (result is string)
@@ -112,11 +112,11 @@ Options:
             }
             else if (result is MemoryStream && FormatIsBitmap(format))
             {
-                SaveToFile(format, DibUtil.ImageFromClipboardDib(result as MemoryStream), "bmp");
+                SaveToFile(format, DibUtil.ImageFromClipboardDib(result as MemoryStream), "bmp", isStar);
             }
             else if (result is MemoryStream && format == "PNG")
             {
-                SaveToFile(format, result as MemoryStream, "png");
+                SaveToFile(format, result as MemoryStream, "png", isStar);
             }
             else if (result is int)
             {
@@ -138,9 +138,10 @@ Options:
             return 0;
         }
 
-        private static void SaveToFile(string format, MemoryStream result, string extension)
+        private static void SaveToFile(string format, MemoryStream result, string extension, bool appendFormat)
         {
-            string filename = extension != null ? $"clipboard.{extension}" : $"clipboard_{format}.out";
+            string formatSuffix = appendFormat ? $"_{format}" : "";
+            string filename = extension != null ? $"clipboard{formatSuffix}.{extension}" : $"clipboard_{format}.out";
             using (var file = File.Create(filename))
             {
                 result.WriteTo(file);
