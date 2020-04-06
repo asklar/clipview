@@ -84,6 +84,11 @@ Options:
                     Console.WriteLine($"Format {format} not found in clipboard. Available formats are: {string.Join(", ", data.GetClipboardFormats())}");
                     return -1;
                 }
+                catch (NotImplementedException)
+                {
+                    Console.WriteLine($"Support for format {format} is not yet implemented");
+                    return -2;
+                }
             }
         }
 
@@ -114,9 +119,9 @@ Options:
             {
                 SaveToFile(format, DibUtil.ImageFromClipboardDib(result as MemoryStream), "bmp", isStar);
             }
-            else if (result is MemoryStream && format == "PNG")
+            else if (result is MemoryStream && FormatIsStreamToFile(format))
             {
-                SaveToFile(format, result as MemoryStream, "png", isStar);
+                SaveToFile(format, result as MemoryStream, format.ToLowerInvariant(), isStar);
             }
             else if (result is int)
             {
@@ -136,6 +141,11 @@ Options:
                 return -1;
             }
             return 0;
+        }
+
+        private static bool FormatIsStreamToFile(string format)
+        {
+            return format == "PNG" || format == "GIF" || format == "JFIF";
         }
 
         private static void SaveToFile(string format, MemoryStream result, string extension, bool appendFormat)

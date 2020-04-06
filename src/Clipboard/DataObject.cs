@@ -139,6 +139,10 @@ namespace Clipboard
                         return medium.GetDrop();
                     case "PNG":
                         return new MemoryStream(medium.GetByteArray());
+                    case "MetafilePicture":
+                        return medium.GetMetafile();
+                    case "EnhancedMetafile":
+                        return medium.GetEnhancedMetafile();
                     default:
                         if (UseString) { return medium.GetString(); }
                         else
@@ -189,6 +193,10 @@ namespace Clipboard
                 case "PNG":
                 case "Drop":
                     return TYMED.TYMED_HGLOBAL;
+                case "MetafilePicture":
+                    return TYMED.TYMED_MFPICT;
+                case "EnhancedMetafile":
+                    return TYMED.TYMED_ENHMF;
             }
             return TYMED.TYMED_HGLOBAL;
         }
@@ -375,6 +383,16 @@ namespace Clipboard
                 {
                     ClipboardNative.GlobalUnlock(gLock);
                 }
+            }
+
+            internal object GetEnhancedMetafile()
+            {
+                throw new NotImplementedException();
+            }
+
+            internal object GetMetafile()
+            {
+                throw new NotImplementedException();
             }
         }
 
