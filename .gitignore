@@ -353,3 +353,5 @@ clipboard.out
 clipboard.bmp
 clipboard.png
 clipboard.txt
+/clipboard_PNG.out
+/clipboard_Bitmap.bmp

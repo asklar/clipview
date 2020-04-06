@@ -129,6 +129,7 @@ namespace Clipboard
                     case "HTML Format":
                     case "UniformResourceLocatorW":
                     case "Csv":
+                    case "Rich Text Format":
                         return medium.GetString();
                     case "FileGroupDescriptorW":
                         return medium.GetFileGroupDescriptor();
@@ -176,6 +177,7 @@ namespace Clipboard
                 case "FileContents":
                 case "HTML Format":
                 case "Csv":
+                case "Rich Text Format":
                     return TYMED.TYMED_ISTREAM;
                 case "Bitmap":
                     return TYMED.TYMED_GDI;
@@ -301,6 +303,7 @@ namespace Clipboard
                         case "Text":
                         case "FileName":
                         case "OemText":
+                        case "Rich Text Format":
                             return Encoding.ASCII.GetString(bytes, 0, bytes.Length - 1);
                         case "UnicodeText":
                         case "FileNameW":

@@ -41,6 +41,7 @@ Options:
 -s  Assume strings for unrecognized formats (default is stream)
 -a  Assume ASCII for unrecognized formats (default is Unicode)
 -o  Dump stream to file for unrecognized formats
+*   Dump all formats
 ");
                     return 0;
                 }
@@ -57,10 +58,19 @@ Options:
             var data = new DataObject();
             data.UseAscii = UseAscii;
             data.UseString = UseString;
+            var formats = data.GetClipboardFormats();
             if (format == null)
             {
-                var formats = data.GetClipboardFormats();
                 Console.WriteLine(string.Join('\n', formats));
+                return 0;
+            }
+            else if (format == "*")
+            {
+                foreach (var f in formats)
+                {
+                    Console.Write($"{f}: ");
+                    Process(f, data);
+                }
                 return 0;
             }
             else
@@ -102,22 +112,23 @@ Options:
             }
             else if (result is MemoryStream && FormatIsBitmap(format))
             {
-                using (var file = File.Create("clipboard.bmp"))
+                using (var file = File.Create($"clipboard_{format}.bmp"))
                 {
                     DibUtil.ImageFromClipboardDib(result as MemoryStream).WriteTo(file);
-                    Console.WriteLine($"Saved file to clipboard.bmp");
-                }
-            }
-            else if (result is MemoryStream && WriteStream)
-            {
-                using (var file = File.Create("clipboard.out"))
-                {
-                    (result as MemoryStream).WriteTo(file);
+                    Console.WriteLine($"Saved file to clipboard_{format}.bmp");
                 }
             }
             else if (result is int)
             {
                 Console.WriteLine(result);
+            }
+            else if (result is MemoryStream && WriteStream)
+            {
+                using (var file = File.Create($"clipboard_{format}.out"))
+                {
+                    (result as MemoryStream).WriteTo(file);
+                    Console.WriteLine($"Saved raw stream to file clipboard_{format}.out");
+                }
             }
             else
             {
