@@ -112,11 +112,11 @@ Options:
             }
             else if (result is MemoryStream && FormatIsBitmap(format))
             {
-                using (var file = File.Create($"clipboard_{format}.bmp"))
-                {
-                    DibUtil.ImageFromClipboardDib(result as MemoryStream).WriteTo(file);
-                    Console.WriteLine($"Saved file to clipboard_{format}.bmp");
-                }
+                SaveToFile(format, DibUtil.ImageFromClipboardDib(result as MemoryStream), "bmp");
+            }
+            else if (result is MemoryStream && format == "PNG")
+            {
+                SaveToFile(format, result as MemoryStream, "png");
             }
             else if (result is int)
             {
@@ -136,6 +136,16 @@ Options:
                 return -1;
             }
             return 0;
+        }
+
+        private static void SaveToFile(string format, MemoryStream result, string extension)
+        {
+            string filename = extension != null ? $"clipboard.{extension}" : $"clipboard_{format}.out";
+            using (var file = File.Create(filename))
+            {
+                result.WriteTo(file);
+                Console.WriteLine($"Saved file to {filename}");
+            }
         }
 
         private static void WriteConsole(string s, ConsoleColor f, ConsoleColor b)

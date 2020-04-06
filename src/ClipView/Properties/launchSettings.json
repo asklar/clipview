@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "clipview": {
+      "commandName": "Project",
+      "commandLineArgs": "PNG -o"
+    }
+  }
+}

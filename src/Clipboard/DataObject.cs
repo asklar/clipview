@@ -138,9 +138,11 @@ namespace Clipboard
                     case "Drop":
                         return medium.GetDrop();
                     case "PNG":
+                        return new MemoryStream(medium.GetByteArray());
                     default:
                         if (UseString) { return medium.GetString(); }
-                        else {
+                        else
+                        {
                             var bytes = medium.GetByteArray();
                             var ms = new MemoryStream(bytes);
                             switch (ms.Length)
@@ -152,7 +154,7 @@ namespace Clipboard
                                 case 2:
                                     return BitConverter.ToInt16(bytes);
                                 case 1:
-                                    return  (int)BitConverter.ToChar(bytes);
+                                    return (int)BitConverter.ToChar(bytes);
                                 default:
                                     return ms;
                             }
