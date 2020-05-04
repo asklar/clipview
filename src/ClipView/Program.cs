@@ -2,20 +2,20 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace clipview
 {
     class Program
     {
-        public static bool UseAscii { get; set; } = false;
-        public static bool UseString { get; set; } = false;
-        public static bool WriteStream { get; set; } = false;
-        [STAThread]
-        static int Main(string[] args)
-        {
-            OleClipboardNative.OleInitialize(IntPtr.Zero);
+        public bool UseAscii { get; set; } = false;
+        public bool UseString { get; set; } = false;
+        public bool WriteStream { get; set; } = false;
 
+        private string ParseOptions()
+        {
             string format = null;
+            var args = Environment.GetCommandLineArgs().Skip(1);
             foreach (var arg in args)
             {
                 if (arg == "-a")
@@ -43,7 +43,7 @@ Options:
 -o  Dump stream to file for unrecognized formats
 *   Dump all formats
 ");
-                    return 0;
+                    Environment.Exit(0);
                 }
                 else if (format == null)
                 {
@@ -55,16 +55,29 @@ Options:
                 }
             }
 
-            var data = new DataObject();
-            data.UseAscii = UseAscii;
-            data.UseString = UseString;
+            return format;
+        }
+
+        [STAThread]
+        static int Main(string[] args)
+        {
+            OleClipboardNative.OleInitialize(IntPtr.Zero);
+            Program p = new Program();
+            return p.Do();
+        }
+
+        private Program() { Format = ParseOptions(); }
+        private string Format { get; set; }
+        private int Do()
+        {
+            var data = new DataObject() { UseAscii = UseAscii, UseString = UseString };
             var formats = data.GetClipboardFormats();
-            if (format == null)
+            if (Format == null)
             {
                 Console.WriteLine(string.Join('\n', formats));
                 return 0;
             }
-            else if (format == "*")
+            else if (Format == "*")
             {
                 foreach (var f in formats)
                 {
@@ -77,22 +90,22 @@ Options:
             {
                 try
                 {
-                    return Process(format, data);
+                    return Process(Format, data);
                 }
                 catch (KeyNotFoundException)
                 {
-                    Console.WriteLine($"Format {format} not found in clipboard. Available formats are: {string.Join(", ", data.GetClipboardFormats())}");
+                    Console.WriteLine($"Format {Format} not found in clipboard. Available formats are: {string.Join(", ", data.GetClipboardFormats())}");
                     return -1;
                 }
                 catch (NotImplementedException)
                 {
-                    Console.WriteLine($"Support for format {format} is not yet implemented");
+                    Console.WriteLine($"Support for format {Format} is not yet implemented");
                     return -2;
                 }
             }
         }
 
-        private static int Process(string format, DataObject data, bool isStar = false)
+        private int Process(string format, DataObject data, bool isStar = false)
         {
             var result = data.GetData(format);
             if (result is string)
